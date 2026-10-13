@@ -30,4 +30,4 @@ else
     echo "init : Bambu Studio introuvable sur ce poste (non bloquant) : à installer pour trancher et imprimer"
 fi
 
-echo "init : prêt. Générer une pièce : uv run generer <nom>   (sans nom : liste des pièces)"
+echo "init : prêt. Générer une pièce : uv run generer <nom>   (sans nom : menu de sélection)"

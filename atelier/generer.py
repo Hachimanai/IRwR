@@ -1,24 +1,111 @@
-"""`uv run generer <nom>` : contrôle une pièce, la rend en PNG, l'exporte en STEP et STL."""
+"""`uv run generer <nom>` : contrôle une pièce, la rend en PNG, l'exporte en STEP et STL.
+
+Sans nom : menu de sélection dans un terminal, liste des pièces sinon.
+"""
 
 import importlib.util
 import re
 import shutil
 import sys
+import termios
 import traceback
 from pathlib import Path
 
+import questionary
 from build123d import Shape, export_step, export_stl
+from prompt_toolkit.keys import Keys
+from questionary.prompts.common import InquirerControl
 
 from atelier.controles import ECHEC, controler
 from atelier.rendu import rendre
 
 RACINE = Path(__file__).resolve().parents[1]
 NOM = re.compile(r"[a-z][a-z0-9_]*")
-USAGE, ECHEC_PIECE = 2, 1
+USAGE, ECHEC_PIECE, ANNULE = 2, 1, 130
 
 
-def pieces_disponibles(racine: Path) -> list[str]:
-    return sorted(p.parent.name for p in (racine / "pieces").glob("*/piece.py"))
+def inventaire(racine: Path) -> tuple[list[str], list[str]]:
+    """Les pièces générables, et les dossiers écartés parce que leur nom n'est pas conforme."""
+    noms = sorted(p.parent.name for p in (racine / "pieces").glob("*/piece.py") if p.is_file())
+    return [n for n in noms if NOM.fullmatch(n)], [n for n in noms if not NOM.fullmatch(n)]
+
+
+def _interactif() -> bool:
+    return all(flux is not None and flux.isatty() for flux in (sys.stdin, sys.stdout))
+
+
+def _vider_la_frappe() -> None:
+    """Jette les touches tapées avant l'affichage du menu : un Entrée en avance validerait à l'aveugle."""
+    try:
+        termios.tcflush(sys.stdin.fileno(), termios.TCIFLUSH)
+    except (termios.error, OSError, ValueError, AttributeError):
+        pass  # pas de terminal derrière l'entrée standard : rien à jeter
+
+
+COLLAGE = object()
+DELAI_ECHAP = 0.1  # secondes
+
+
+def _preparer(disponibles: list[str]):
+    """Le menu de questionary, corrigé : ce qui ne désigne aucune pièce ne peut pas en valider une.
+
+    Tel quel, il garde la liste entière sous un filtre sans résultat, ignore les lettres
+    accentuées et les collages, et Entrée rend alors la pièce pointée.
+    """
+    question = questionary.select("Pièce à générer", choices=disponibles, use_search_filter=True, use_jk_keys=False)
+    menu = next(c for c in question.application.layout.find_all_controls() if isinstance(c, InquirerControl))
+    touches = question.application.key_bindings
+    dessiner = menu.text
+
+    def sans_resultat() -> bool:
+        menu.filtered_choices  # recalcule found_in_search pour le filtre courant
+        return bool(menu.search_filter) and not menu.found_in_search
+
+    def liste():
+        return [("class:search_none", "   aucune pièce ne correspond")] if sans_resultat() else dessiner()
+
+    menu.text = liste
+
+    @touches.add(Keys.Any)
+    def _(evenement):
+        # questionary ne filtre que sur l'ASCII : le reste entre aussi dans le filtre, où il se voit.
+        if not evenement.data.isascii():
+            menu.add_search_character(evenement.data)
+
+    @touches.add(Keys.ControlM, eager=True)
+    def _(evenement):
+        if not sans_resultat():
+            menu.is_answered = True
+            evenement.app.exit(result=menu.get_pointed_at().value)
+
+    @touches.add(Keys.BracketedPaste)
+    def _(evenement):
+        evenement.app.exit(result=COLLAGE)
+
+    # Pas de `eager` : Échap ouvre aussi la séquence des flèches. Le délai court évite d'attendre
+    # une seconde la suite d'une combinaison avant de quitter.
+    @touches.add(Keys.Escape)
+    def _(evenement):
+        evenement.app.exit(exception=KeyboardInterrupt, style="class:aborting")
+
+    question.application.timeoutlen = DELAI_ECHAP
+    question.application.ttimeoutlen = DELAI_ECHAP
+
+    return question, menu
+
+
+def _choisir(disponibles: list[str]) -> str | None:
+    """Menu aux flèches, filtré à la frappe. `None` si rien n'est choisi."""
+    question, _ = _preparer(disponibles)
+    _vider_la_frappe()
+    choix = question.ask(kbi_msg="Annulé.")
+    if choix is COLLAGE:
+        print("generer : le menu n'accepte pas le collage : taper le nom, ou le passer en argument", file=sys.stderr)
+        return None
+    if choix == "":  # Échap puis Entrée : prompt_toolkit rend une chaîne vide
+        print("Annulé.")
+        return None
+    return choix
 
 
 def _erreur(message: str) -> int:
@@ -35,13 +122,21 @@ def _charger(chemin: Path):
 
 def main(argv: list[str] | None = None, racine: Path = RACINE, sortie: Path | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
-    disponibles = pieces_disponibles(racine)
-    if not args:
-        print("Pièces disponibles :", ", ".join(disponibles) or "aucune")
-        return 0
+    disponibles, ecartes = inventaire(racine)
+    for nom in ecartes:
+        print(f"generer : pieces/{nom!r} ignoré (nom attendu : minuscules, chiffres, _)", file=sys.stderr)
     if len(args) > 1:
         return _erreur("une seule pièce à la fois — usage : uv run generer <nom>")
-    nom = args[0]
+    if args:
+        nom = args[0]
+    elif disponibles and _interactif():
+        nom = _choisir(disponibles)
+        if nom is None:
+            return ANNULE
+    else:
+        # Hors terminal (script, tuyau), un menu attendrait une saisie qui ne viendra pas.
+        print("Pièces disponibles :", ", ".join(disponibles) or "aucune")
+        return 0
     if not NOM.fullmatch(nom):
         return _erreur(f"nom de pièce invalide « {nom} » (attendu : minuscules, chiffres, _)")
     chemin = racine / "pieces" / nom / "piece.py"

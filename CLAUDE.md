@@ -23,10 +23,15 @@ régénère et ne se versionne pas.
 4. Ouvrir `out/<nom>/<nom>.step` dans Bambu Studio (le STEP garde les courbes exactes ; le STL
    est là en secours).
 
-`uv run generer` sans nom liste les pièces. Codes de sortie : 0 exporté, 1 la pièce échoue
-(contrôle en ÉCHEC ou exception dans `construire()`), 2 erreur d'usage (nom inconnu ou
-invalide, `construire()` absent). `out/<nom>/` est vidé à chaque run : après un échec il ne
-contient que les PNG, jamais un STEP ou un STL d'une version précédente.
+`uv run generer` sans nom ouvre un menu dans un terminal (flèches, frappe pour filtrer, Entrée
+pour générer, Échap ou Ctrl-C pour annuler) ; hors terminal, il liste les pièces. Quand le filtre ne
+correspond à aucune pièce, la liste se vide et Entrée reste sans effet. Un dossier de `pieces/`
+au nom non conforme est écarté et signalé.
+
+Codes de sortie : 0 pièce exportée (ou liste affichée), 1 la pièce échoue (contrôle en ÉCHEC ou
+exception dans `construire()`), 2 erreur d'usage (nom inconnu ou invalide, `construire()`
+absent), 130 menu quitté sans choix (annulation, collage). `out/<nom>/` est vidé à chaque run :
+après un échec il ne contient que les PNG, jamais un STEP ou un STL d'une version précédente.
 
 ## Contrat d'une pièce
 
