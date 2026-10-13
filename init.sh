@@ -16,7 +16,8 @@ uv sync --locked
 
 echo "init : test de fumée (uv run generer eprouvette_jeux)"
 uv run generer eprouvette_jeux
-for fichier in eprouvette_jeux.step eprouvette_jeux.stl iso.png dessus.png face.png droite.png; do
+for fichier in eprouvette_jeux.step eprouvette_jeux.stl \
+    iso.png dessus.png dessous.png face.png arriere.png droite.png gauche.png; do
     if [ ! -s "out/eprouvette_jeux/$fichier" ]; then
         echo "init : out/eprouvette_jeux/$fichier est absent ou vide" >&2
         exit 1

@@ -30,6 +30,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "build123d" },
+    { name = "pillow" },
     { name = "prompt-toolkit" },
     { name = "questionary" },
 ]
@@ -42,6 +43,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "build123d", specifier = "==0.13.0" },
+    { name = "pillow", specifier = "==12.2.0" },
     { name = "prompt-toolkit", specifier = "==3.0.53" },
     { name = "questionary", specifier = "==2.1.1" },
 ]

@@ -7,6 +7,7 @@ dependencies = [
     "build123d==0.13.0",
     "questionary==2.1.1",
     "prompt-toolkit==3.0.53",
+    "pillow==12.2.0",
 ]
 
 [project.scripts]

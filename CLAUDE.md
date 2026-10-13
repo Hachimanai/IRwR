@@ -17,9 +17,16 @@ régénère et ne se versionne pas.
 
 1. Écrire `pieces/<nom>/piece.py` (contrat ci-dessous) et `pieces/<nom>/NOTES.md` (cotes
    mesurées, ce avec quoi la pièce s'assemble, résultat de chaque tirage).
-2. `uv run generer <nom>` : contrôles, quatre vues PNG, puis STEP et STL dans `out/<nom>/`.
-3. **Lire les PNG** (`iso`, `dessus`, `face`, `droite` : arêtes vues en noir, cachées en gris)
-   avant d'annoncer qu'une pièce est prête. Les contrôles ne voient pas une erreur de forme.
+2. `uv run generer <nom>` : contrôles, sept vues PNG, puis STEP et STL dans `out/<nom>/`.
+3. **Lire les PNG** avant d'annoncer qu'une pièce est prête (arêtes vues en trait noir, cachées
+   en tirets gris) : les contrôles ne voient pas une erreur de forme. Toujours les quatre vues
+   principales, `iso`, `dessus`, `face`, `droite`. Les trois autres, `dessous`, `arriere`,
+   `gauche`, s'ouvrent quand un détail ne se lit pas bien sur les principales : aller chercher
+   la ou les vues qui tranchent, pas les sept d'office. Hors `iso`, chaque vue porte un cadre
+   gradué en mm dans les coordonnées de la pièce : une position lue sur l'image se compare aux
+   constantes de `piece.py`. Le titre donne les axes ; `dessous`, `arriere` et `gauche` sont
+   des vues miroir, leur axe horizontal décroît vers la droite. Un axe trop court pour deux
+   graduations porte ses deux extrémités, écrites `a .. b` dans le sens de l'image.
 4. Ouvrir `out/<nom>/<nom>.step` dans Bambu Studio (le STEP garde les courbes exactes ; le STL
    est là en secours).
 
@@ -32,6 +39,10 @@ Codes de sortie : 0 pièce exportée (ou liste affichée), 1 la pièce échoue (
 exception dans `construire()`), 2 erreur d'usage (nom inconnu ou invalide, `construire()`
 absent), 130 menu quitté sans choix (annulation, collage). `out/<nom>/` est vidé à chaque run :
 après un échec il ne contient que les PNG, jamais un STEP ou un STL d'une version précédente.
+
+Les PNG se rendent avant l'export, même sur une pièce en ÉCHEC, et c'est voulu : ils servent à
+voir pourquoi la génération a échoué. Les lire avant de corriger. Un rendu qui échoue lui-même
+ne bloque rien : `generer` écrit « rendu impossible » sur stderr et poursuit.
 
 ## Contrat d'une pièce
 
