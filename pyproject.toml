@@ -1,0 +1,24 @@
+[project]
+name = "atelier"
+version = "0.1.0"
+description = "Atelier de pièces 3D en code-CAD pour Bambu Lab X2D"
+requires-python = ">=3.11,<3.15"
+dependencies = ["build123d==0.13.0"]
+
+[project.scripts]
+generer = "atelier.generer:main"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["uv_build>=0.13.0,<0.14"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = ["atelier", "commun"]
+module-root = ""
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning:lib3mf.*"]
