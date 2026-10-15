@@ -3,3 +3,4 @@ out/
 __pycache__/
 .pytest_cache/
 .gstack/
+result.json
