@@ -11,7 +11,7 @@ Le coin chanfreiné repère le côté du jeu nul.
 3. Noter le premier trou où il entre à la main (« glissant ») et le premier où il tombe
    sous son poids (« libre »). Le trou d'avant « glissant » donne le « serré ».
 4. Essayer une vis M3 à tête cylindrique dans le dernier trou : passage et tête noyée.
-5. Reporter les jeux validés dans le tableau de `CLAUDE.md` et dans `commun/jeux.py`.
+5. Reporter les jeux validés dans le tableau de `docs/conception.md` et dans `commun/jeux.py`.
 
 ## Tirages
 

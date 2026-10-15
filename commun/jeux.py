@@ -1,7 +1,7 @@
 """Jeux d'ajustement par matériau, en mm, au diamètre.
 
 Valeurs de DÉPART usuelles, pas des mesures sur cette X2D : la pièce
-`eprouvette_jeux` sert à les valider, et `CLAUDE.md` tient le tableau des
+`eprouvette_jeux` sert à les valider, et `docs/conception.md` tient le tableau des
 valeurs confirmées par un tirage.
 """
 

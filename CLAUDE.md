@@ -1,95 +1,49 @@
 # IRwR — atelier de pièces 3D en code-CAD
 
-Des pièces fonctionnelles écrites en Python avec build123d, exportées en STEP et STL, tranchées
-dans Bambu Studio et imprimées sur une Bambu Lab X2D. La pièce est son code : `out/` se
-régénère et ne se versionne pas.
+Des pièces écrites en Python, tranchées dans Bambu Studio et imprimées sur une Bambu Lab X2D.
+La pièce est son code : `out/` se régénère et ne se versionne pas.
 
-## Imprimante : Bambu Lab X2D
+## Deux filières : build123d ou Blender
 
-- Volume buse principale : 256 × 256 × 260 mm. Volume buse auxiliaire : 235,5 × 256 × 256 mm.
-  Les deux sont dans `commun/imprimante.py`, et `generer` les contrôle.
-- Double buse : la principale (direct drive) porte la matière, l'auxiliaire (Bowden) est
-  prévue pour le support. Un support dans un matériau dédié autorise des surplombs plus libres.
-- Température maximale de buse : 300 °C ou 350 °C selon les sources, non tranché. À lire sur
-  la fiche de la machine avant de viser un matériau technique.
+| | build123d | Blender |
+| --- | --- | --- |
+| Fichier | `pieces/<nom>/piece.py` | `pieces/<nom>/scene.py` |
+| Pour | cotes, ajustements, visserie | formes libres, sculptées, organiques |
+| Géométrie | BREP, courbes exactes | maillage (triangles) |
+| Exports | STEP + STL | STL + `.blend` |
+| Vues PNG | arêtes vues et cachées | rendu ombré, silhouette seule |
 
-## Flux de travail
+**Avant d'écrire une nouvelle pièce, demander à l'utilisateur la filière** (sauf s'il l'a déjà
+nommée), en recommandant celle qui convient. Un dossier porte l'une ou l'autre, jamais les deux.
+Une nouvelle pièce démarre par la skill `nouvelle-piece`.
 
-1. Écrire `pieces/<nom>/piece.py` (contrat ci-dessous) et `pieces/<nom>/NOTES.md` (cotes
-   mesurées, ce avec quoi la pièce s'assemble, résultat de chaque tirage).
-2. `uv run generer <nom>` : contrôles, sept vues PNG, puis STEP et STL dans `out/<nom>/`.
-3. **Lire les PNG** avant d'annoncer qu'une pièce est prête (arêtes vues en trait noir, cachées
-   en tirets gris) : les contrôles ne voient pas une erreur de forme. Toujours les quatre vues
-   principales, `iso`, `dessus`, `face`, `droite`. Les trois autres, `dessous`, `arriere`,
-   `gauche`, s'ouvrent quand un détail ne se lit pas bien sur les principales : aller chercher
-   la ou les vues qui tranchent, pas les sept d'office. Hors `iso`, chaque vue porte un cadre
-   gradué en mm dans les coordonnées de la pièce : une position lue sur l'image se compare aux
-   constantes de `piece.py`. Le titre donne les axes ; `dessous`, `arriere` et `gauche` sont
-   des vues miroir, leur axe horizontal décroît vers la droite. Un axe trop court pour deux
-   graduations porte ses deux extrémités, écrites `a .. b` dans le sens de l'image.
-4. Ouvrir `out/<nom>/<nom>.step` dans Bambu Studio (le STEP garde les courbes exactes ; le STL
-   est là en secours).
+## À retenir
 
-`uv run generer` sans nom ouvre un menu dans un terminal (flèches, frappe pour filtrer, Entrée
-pour générer, Échap ou Ctrl-C pour annuler) ; hors terminal, il liste les pièces. Quand le filtre ne
-correspond à aucune pièce, la liste se vide et Entrée reste sans effet. Un dossier de `pieces/`
-au nom non conforme est écarté et signalé.
+- **Une seule buse en service** (la principale, gauche) : impression mono-matière, et le
+  support sort dans la matière de la pièce. Volume contrôlé : 256 × 256 × 260 mm.
+- Contrat : `construire()` rend un `Part` (build123d) ou un objet MESH (Blender) ; mm, Z vers
+  le haut, posé sur Z = 0 dans son orientation d'impression ; un seul solide ; cotes en
+  constantes en tête de fichier ; `<nom>` en minuscules, chiffres et `_`.
+- Flux : écrire la pièce et son `NOTES.md`, `uv run generer <nom>`, **lire les PNG** (les
+  contrôles ne voient pas une erreur de forme), puis ouvrir dans Bambu Studio le `.step`
+  (build123d) ou le `.stl` (Blender).
 
-Codes de sortie : 0 pièce exportée (ou liste affichée), 1 la pièce échoue (contrôle en ÉCHEC ou
-exception dans `construire()`), 2 erreur d'usage (nom inconnu ou invalide, `construire()`
-absent), 130 menu quitté sans choix (annulation, collage). `out/<nom>/` est vidé à chaque run :
-après un échec il ne contient que les PNG, jamais un STEP ou un STL d'une version précédente.
+## Où lire le détail
 
-Les PNG se rendent avant l'export, même sur une pièce en ÉCHEC, et c'est voulu : ils servent à
-voir pourquoi la génération a échoué. Les lire avant de corriger. Un rendu qui échoue lui-même
-ne bloque rien : `generer` écrit « rendu impossible » sur stderr et poursuit.
+Lire le fichier qui correspond **avant** la tâche concernée :
 
-## Contrat d'une pièce
-
-- `piece.py` expose `construire() -> Part` (build123d), sans effet de bord à l'import.
-- Unités en mm, Z vers le haut, pièce posée sur Z = 0 dans son orientation d'impression.
-- Une pièce = un seul solide. Un assemblage s'écrit en plusieurs pièces.
-- `<nom>` : minuscules, chiffres et `_`, en commençant par une lettre.
-- Les cotes se nomment en constantes en tête de fichier, jamais en dur dans la géométrie.
-- Les briques communes viennent de `commun/` : `visserie` (perçages M2 à M5, passage et
-  lamage), `jeux` (ajustements par matériau), `imprimante` (volumes).
-
-## Contrôles de `generer`
-
-ÉCHEC (pas d'export) : pas un `Part`, aucun solide, plusieurs solides, géométrie invalide,
-volume nul, dépassement du volume de la buse principale. AVERTISSEMENT (export quand même) :
-dépassement du volume de la buse auxiliaire, pièce non posée sur Z = 0. X et Y se comparent
-triés : la pièce peut tourner de 90° sur le plateau.
-
-## Concevoir pour l'impression
-
-- Orienter la pièce pour que les efforts tirent le long des couches, pas entre elles.
-- Surplombs au-delà de 45° : support, ou chanfrein à la place d'un congé sous une face.
-- Paroi : au moins deux largeurs de buse. Un trou vertical sort plus petit que sa cote :
-  appliquer le jeu du tableau.
-- Arêtes posées sur le plateau : chanfrein plutôt que congé (patte d'éléphant).
-
-## Jeux d'ajustement (au diamètre, mm)
-
-Valeurs de DÉPART, pas des mesures sur cette X2D. Une ligne ne se tient pour acquise qu'avec
-sa date de validation, obtenue en imprimant `eprouvette_jeux` (voir son `NOTES.md`). Garder ce
-tableau et `commun/jeux.py` identiques.
-
-| Matériau | Serré | Glissant | Libre | Validé le |
-| --- | --- | --- | --- | --- |
-| PLA | 0,10 | 0,20 | 0,30 | — |
-| PETG | 0,15 | 0,25 | 0,35 | — |
-| ABS | 0,15 | 0,25 | 0,35 | — |
+| Fichier | Quand |
+| --- | --- |
+| `docs/contrat-piece.md` | écrire ou modifier `piece.py` / `scene.py` ; contraintes du Python de Blender |
+| `docs/conception.md` | concevoir une forme : orientation, surplombs, parois ; **jeux d'ajustement** par matériau |
+| `docs/generer.md` | lancer `generer`, lire les vues PNG, interpréter un code de sortie ou un contrôle en ÉCHEC |
+| `docs/imprimante.md` | volumes, buses, température ; ouvrir un export dans Bambu Studio |
+| `docs/postes.md` | installer un poste, changer une dépendance (`uv.lock`) |
 
 ## Vérifier avant de conclure
 
 - `uv run pytest` : toute la suite.
 - `uv run generer <nom>` sur chaque pièce touchée, puis lecture de ses PNG.
+- Les tests qui lancent le vrai Blender sont sautés quand il manque : le dire plutôt que
+  conclure sur une suite partielle.
 - `sh init.sh` après toute modification de `pyproject.toml`, `uv.lock` ou `init.sh`.
-
-## Deux postes
-
-Sur un poste neuf : cloner, puis `sh init.sh` (demande `uv` ; n'installe rien au niveau
-système). Ensuite `git pull` avant de travailler ; relancer `sh init.sh` si `uv.lock` a changé.
-`uv sync --locked` refuse un `uv.lock` qui ne correspond plus à `pyproject.toml` : après un
-changement de dépendance, `uv lock` puis committer les deux fichiers ensemble.
