@@ -12,8 +12,8 @@
 - Les briques communes viennent de `commun/` : `visserie` (perçages M2 à M5, passage et
   lamage), `jeux` (ajustements par matériau), `imprimante` (volumes).
 - `pieces/<nom>/NOTES.md` accompagne chaque pièce : cotes mesurées et leur origine, ce avec
-  quoi la pièce s'assemble, hypothèses, et le tableau « Tirages » (résultat de chaque
-  impression).
+  quoi la pièce s'assemble, hypothèses, supports (aucun, ou où les activer ou peindre dans
+  Bambu Studio) et le tableau « Tirages » (résultat de chaque impression).
 
 ## Propre à `scene.py` (Blender)
 

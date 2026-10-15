@@ -83,7 +83,8 @@ Rien ne manque de bloquant : ne rien demander, annoncer les hypothèses et const
 
 Écrire `pieces/<nom>/` selon `docs/contrat-piece.md` : cotes en constantes nommées en tête de fichier, et
 `NOTES.md` avec les cotes reçues (d'où elles viennent : mesure, croquis, photo), les
-hypothèses, ce avec quoi la pièce s'assemble.
+hypothèses, ce avec quoi la pièce s'assemble, et les supports à activer ou peindre dans
+Bambu Studio (ou « aucun »).
 
 En cours de route, une question nouvelle peut surgir : deux cotes incompatibles (un trou M4 à
 2 mm du bord d'une patte de 6 mm), une face que les images ne montrent pas et qui porte une

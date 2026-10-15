@@ -4,6 +4,10 @@
 - Surplombs au-delà de 45° : chanfrein à la place d'un congé sous une face, ou changer
   l'orientation. Le support, faute de seconde buse (`docs/imprimante.md`), sort dans la matière
   de la pièce : à éviter, il marque les faces et se retire mal dans les creux.
+- Le support se génère dans Bambu Studio, jamais dans le code : modélisé, il ferait partie du
+  solide, sans l'écart en Z ni l'interface qui le rendent détachable. Le code l'évite
+  (orientation, chanfreins, couche sacrificielle sur un trou ou un lamage, toit en goutte) ;
+  le `NOTES.md` dit si la pièce en demande et où, à activer ou peindre dans Bambu Studio.
 - Paroi : au moins deux largeurs de buse. Un trou vertical sort plus petit que sa cote :
   appliquer le jeu du tableau.
 - Arêtes posées sur le plateau : chanfrein plutôt que congé (patte d'éléphant).
