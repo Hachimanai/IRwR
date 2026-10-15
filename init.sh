@@ -24,6 +24,19 @@ for fichier in eprouvette_jeux.step eprouvette_jeux.stl \
     fi
 done
 
+if command -v blender >/dev/null 2>&1 || [ -n "${BLENDER:-}" ]; then
+    echo "init : Blender trouvé, test de fumée de la filière Blender (uv run generer vase_torsade)"
+    uv run generer vase_torsade
+    for fichier in vase_torsade.stl vase_torsade.blend iso.png face.png; do
+        if [ ! -s "out/vase_torsade/$fichier" ]; then
+            echo "init : out/vase_torsade/$fichier est absent ou vide" >&2
+            exit 1
+        fi
+    done
+else
+    echo "init : Blender introuvable (non bloquant) : seules les pièces build123d se génèrent ; sudo pacman -S blender"
+fi
+
 if command -v bambu-studio >/dev/null 2>&1 || command -v BambuStudio >/dev/null 2>&1 \
     || { command -v flatpak >/dev/null 2>&1 && flatpak info com.bambulab.BambuStudio >/dev/null 2>&1; }; then
     echo "init : Bambu Studio trouvé"

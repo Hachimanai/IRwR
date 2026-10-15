@@ -1,12 +1,15 @@
-"""`uv run generer <nom>` : contrôle une pièce, la rend en PNG, l'exporte en STEP et STL.
+"""`uv run generer <nom>` : contrôle une pièce, la rend en PNG, l'exporte.
 
-Sans nom : menu de sélection dans un terminal, liste des pièces sinon.
+Deux filières, selon le fichier du dossier `pieces/<nom>/` : `piece.py` (build123d, export STEP
+et STL) ou `scene.py` (Blender, export STL et .blend). Sans nom : menu de sélection dans un
+terminal, liste des pièces sinon.
 """
 
 import importlib.util
 import re
 import shutil
 import sys
+import tempfile
 import termios
 import traceback
 from pathlib import Path
@@ -16,17 +19,19 @@ from build123d import Shape, export_step, export_stl
 from prompt_toolkit.keys import Keys
 from questionary.prompts.common import InquirerControl
 
-from atelier.controles import ECHEC, controler
-from atelier.rendu import rendre
+from atelier import blender
+from atelier.controles import ECHEC, controler, controler_maillage
+from atelier.rendu import VUES, composer, rendre
 
 RACINE = Path(__file__).resolve().parents[1]
 NOM = re.compile(r"[a-z][a-z0-9_]*")
 USAGE, ECHEC_PIECE, ANNULE = 2, 1, 130
+FICHIERS = ("piece.py", "scene.py")  # build123d, Blender
 
 
 def inventaire(racine: Path) -> tuple[list[str], list[str]]:
     """Les pièces générables, et les dossiers écartés parce que leur nom n'est pas conforme."""
-    noms = sorted(p.parent.name for p in (racine / "pieces").glob("*/piece.py") if p.is_file())
+    noms = sorted({p.parent.name for f in FICHIERS for p in (racine / "pieces").glob(f"*/{f}") if p.is_file()})
     return [n for n in noms if NOM.fullmatch(n)], [n for n in noms if not NOM.fullmatch(n)]
 
 
@@ -139,9 +144,17 @@ def main(argv: list[str] | None = None, racine: Path = RACINE, sortie: Path | No
         return 0
     if not NOM.fullmatch(nom):
         return _erreur(f"nom de pièce invalide « {nom} » (attendu : minuscules, chiffres, _)")
-    chemin = racine / "pieces" / nom / "piece.py"
-    if not chemin.is_file():
+    sources = [racine / "pieces" / nom / f for f in FICHIERS if (racine / "pieces" / nom / f).is_file()]
+    if not sources:
         return _erreur(f"pièce inconnue « {nom} » — disponibles : {', '.join(disponibles) or 'aucune'}")
+    if len(sources) > 1:
+        return _erreur(f"pieces/{nom} a piece.py et scene.py : une pièce = une filière, en garder un")
+    chemin = sources[0]
+    if chemin.name == "scene.py":
+        try:
+            executable = blender.executable()
+        except blender.BlenderIntrouvable as erreur:
+            return _erreur(str(erreur))
 
     # Vidé d'abord : après un échec, aucun export d'un run précédent ne doit rester.
     dossier = (sortie or racine / "out") / nom
@@ -149,6 +162,27 @@ def main(argv: list[str] | None = None, racine: Path = RACINE, sortie: Path | No
         shutil.rmtree(dossier)
     dossier.mkdir(parents=True)
 
+    if chemin.name == "scene.py":
+        return _generer_blender(nom, chemin, executable, dossier)
+    return _generer_build123d(nom, chemin, dossier)
+
+
+def _conclure(ecarts, ecrits: list[Path], exporter) -> int:
+    """Affiche les écarts ; exporte si aucun n'est un ÉCHEC. Commun aux deux filières."""
+    echec = any(e.niveau == ECHEC for e in ecarts)
+    for ecart in ecarts:
+        print(f"  {ecart.niveau} : {ecart.message}")
+    if not echec:
+        ecrits += exporter()
+    for fichier in ecrits:
+        print(f"  écrit : {fichier}")
+    if echec:
+        print(f"generer : {ECHEC} — rien n'est exporté", file=sys.stderr)
+        return ECHEC_PIECE
+    return 0
+
+
+def _generer_build123d(nom: str, chemin: Path, dossier: Path) -> int:
     try:
         construire = _charger(chemin)
         if not callable(construire):
@@ -160,7 +194,6 @@ def main(argv: list[str] | None = None, racine: Path = RACINE, sortie: Path | No
         return ECHEC_PIECE
 
     ecarts = controler(piece)
-    echec = any(e.niveau == ECHEC for e in ecarts)
     ecrits = []
     if isinstance(piece, Shape):
         try:
@@ -169,19 +202,55 @@ def main(argv: list[str] | None = None, racine: Path = RACINE, sortie: Path | No
             print(f"generer : rendu impossible ({type(erreur).__name__} : {erreur})", file=sys.stderr)
         boite = piece.bounding_box()
         print(f"{nom} : {boite.size.X:.2f} × {boite.size.Y:.2f} × {boite.size.Z:.2f} mm, {piece.volume / 1000:.2f} cm³")
-    for ecart in ecarts:
-        print(f"  {ecart.niveau} : {ecart.message}")
-    if not echec:
+
+    def exporter():
         step, stl = dossier / f"{nom}.step", dossier / f"{nom}.stl"
         export_step(piece, step)
         export_stl(piece, stl)
-        ecrits += [step, stl]
-    for fichier in ecrits:
-        print(f"  écrit : {fichier}")
-    if echec:
-        print(f"generer : {ECHEC} — ni STEP ni STL exportés", file=sys.stderr)
-        return ECHEC_PIECE
-    return 0
+        return [step, stl]
+
+    return _conclure(ecarts, ecrits, exporter)
+
+
+def _generer_blender(nom: str, chemin: Path, executable: str, dossier: Path) -> int:
+    vues = {vue: [direction, haut] for vue, (direction, haut, _) in VUES.items()}
+    with tempfile.TemporaryDirectory(prefix="generer-") as travail:
+        travail = Path(travail)
+        try:
+            reponse = blender.executer(executable, chemin, vues, travail)
+        except blender.BlenderEchoue as erreur:
+            print(f"generer : {ECHEC} — {erreur}", file=sys.stderr)
+            return ECHEC_PIECE
+        if "erreur_usage" in reponse:
+            return _erreur(reponse["erreur_usage"])
+        if "erreur" in reponse:
+            print(reponse["erreur"], end="", file=sys.stderr)
+            print(f"generer : {ECHEC} — {chemin} a levé une exception", file=sys.stderr)
+            return ECHEC_PIECE
+
+        mesures = reponse["mesures"]
+        ecarts = controler_maillage(mesures)
+        ecrits = []
+        if "erreur_rendu" in reponse:
+            print(f"generer : rendu impossible ({reponse['erreur_rendu']})", file=sys.stderr)
+        for vue, rendu in reponse.get("rendus", {}).items():
+            try:
+                ecrits.append(composer(vue, Path(rendu["fichier"]), rendu["cadrage"], rendu["emprise"],
+                                       reponse["centre"], dossier / f"{vue}.png"))
+            except Exception as erreur:
+                print(f"generer : rendu impossible ({vue} : {type(erreur).__name__} : {erreur})", file=sys.stderr)
+        if mesures.get("type") == "MESH" and mesures["faces"]:
+            taille = [b - a for a, b in zip(mesures["boite_min"], mesures["boite_max"])]
+            print(f"{nom} : {taille[0]:.2f} × {taille[1]:.2f} × {taille[2]:.2f} mm, "
+                  f"{mesures['volume'] / 1000:.2f} cm³ (maillage Blender)")
+
+        def exporter():
+            stl, blend = dossier / f"{nom}.stl", dossier / f"{nom}.blend"
+            shutil.copyfile(travail / "piece.stl", stl)
+            shutil.copyfile(travail / "piece.blend", blend)
+            return [stl, blend]
+
+        return _conclure(ecarts, ecrits, exporter)
 
 
 if __name__ == "__main__":

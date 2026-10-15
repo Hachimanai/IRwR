@@ -1,4 +1,7 @@
-"""Vues PNG d'une pièce : arêtes vues en trait plein, cachées en tirets, cadre gradué en mm."""
+"""Vues PNG d'une pièce : arêtes vues en trait plein, cachées en tirets, cadre gradué en mm.
+
+Une pièce Blender arrive déjà rendue en image : `composer` la pose dans le même cadre.
+"""
 
 import math
 from itertools import pairwise
@@ -149,7 +152,39 @@ def _dessiner(nom: str, vues, cachees, axes, centre: Vector, fichier: Path) -> N
         (_polyligne(courbe, ebauche, approchee), cachee)
         for courbe, ebauche, (_, cachee) in zip(courbes, ebauches, aretes)
     ]
-    x_min, x_max, y_min, y_max = _emprise(points for points, _ in traits)
+
+    def tracer(page: "_Page") -> None:
+        for points, cachee in traits:
+            pixels = [page.px(x, y) for x, y in points]
+            if cachee:
+                for tiret in _tirets(pixels, TIRET_PLEIN * SUR, TIRET_VIDE * SUR):
+                    page.trait(tiret, GRIS, TRAIT_CACHE)
+            else:
+                page.trait(pixels, NOIR, TRAIT_VU)
+
+    _mettre_en_page(nom, _emprise(points for points, _ in traits), axes, centre, tracer, fichier)
+
+
+class _Page:
+    """L'image en cours, à SUR fois sa taille finale, et le passage des mm de la vue aux pixels."""
+
+    def __init__(self, image: Image.Image, marge_gauche: float, x_min: float, y_max: float, echelle: float):
+        self.image, self.crayon = image, ImageDraw.Draw(image)
+        self.marge_gauche, self.x_min, self.y_max, self.echelle = marge_gauche, x_min, y_max, echelle
+
+    def px(self, x: float, y: float) -> tuple[float, float]:
+        return (self.marge_gauche + (x - self.x_min) * self.echelle) * SUR, (MARGE_HAUT + (self.y_max - y) * self.echelle) * SUR
+
+    def trait(self, points, couleur, epaisseur: int) -> None:
+        self.crayon.line(points, fill=couleur, width=epaisseur * SUR, joint="curve")
+
+
+def _mettre_en_page(nom: str, emprise, axes, centre: Vector, tracer, fichier: Path) -> None:
+    """Le cadre gradué, la grille et le titre autour de ce que `tracer(page)` dessine dans l'emprise.
+
+    `emprise` (x_min, x_max, y_min, y_max) est en mm dans le repère de la vue, compté depuis `centre`.
+    """
+    x_min, x_max, y_min, y_max = emprise
     echelle = _echelle(x_min, x_max, y_min, y_max)
 
     police = ImageFont.load_default(size=CORPS * SUR)
@@ -181,17 +216,14 @@ def _dessiner(nom: str, vues, cachees, axes, centre: Vector, fichier: Path) -> N
     )
     largeur = math.ceil(marge_gauche + dessin + marge_droite)
     hauteur = MARGE_HAUT + round((y_max - y_min) * echelle) + MARGE_BAS
-    image = Image.new("RGB", (largeur * SUR, hauteur * SUR), BLANC)
-    crayon = ImageDraw.Draw(image)
+    page = _Page(Image.new("RGB", (largeur * SUR, hauteur * SUR), BLANC), marge_gauche, x_min, y_max, echelle)
+    crayon, trait = page.crayon, page.trait
 
     def px_x(x: float) -> float:
-        return (marge_gauche + (x - x_min) * echelle) * SUR
+        return page.px(x, 0)[0]
 
     def px_y(y: float) -> float:
-        return (MARGE_HAUT + (y_max - y) * echelle) * SUR
-
-    def trait(points, couleur, epaisseur: int) -> None:
-        crayon.line(points, fill=couleur, width=epaisseur * SUR, joint="curve")
+        return page.px(0, y)[1]
 
     if axes:
         gauche, droite, bas, haut = px_x(x_min), px_x(x_max), px_y(y_min), px_y(y_max)
@@ -216,16 +248,30 @@ def _dessiner(nom: str, vues, cachees, axes, centre: Vector, fichier: Path) -> N
                 ancre = (cadre_x - (TIRET + ECART_LIBELLE_GAUCHE) * SUR, px_y(y))
                 crayon.text(ancre, libelle, fill=NOIR, font=police, anchor="rm")
 
-    for points, cachee in traits:
-        pixels = [(px_x(x), px_y(y)) for x, y in points]
-        if cachee:
-            for tiret in _tirets(pixels, TIRET_PLEIN * SUR, TIRET_VIDE * SUR):
-                trait(tiret, GRIS, TRAIT_CACHE)
-        else:
-            trait(pixels, NOIR, TRAIT_VU)
+    tracer(page)
     crayon.text((ORIGINE_TITRE[0] * SUR, ORIGINE_TITRE[1] * SUR), titre, fill=NOIR, font=police_titre)
     # Réduction par un facteur entier : la moyenne des SUR × SUR pixels, sans filtre à calculer.
-    image.reduce(SUR).save(fichier)
+    page.image.reduce(SUR).save(fichier)
+
+
+def composer(nom: str, rendu: Path, cadrage, emprise, centre, fichier: Path) -> Path:
+    """Pose une image déjà rendue (Blender) dans le cadre gradué de la vue `nom`.
+
+    `cadrage` est la zone que couvre l'image, `emprise` celle de la pièce, toutes deux
+    (x_min, x_max, y_min, y_max) en mm dans le repère de la vue, comptés depuis `centre` (x, y, z).
+    """
+    with Image.open(rendu) as source:
+        image = source.convert("RGBA")
+
+    def tracer(page: _Page) -> None:
+        x_min, x_max, y_min, y_max = cadrage
+        (gauche, haut), (droite, bas) = page.px(x_min, y_max), page.px(x_max, y_min)
+        boite = (round(gauche), round(haut), round(droite), round(bas))
+        posee = image.resize((max(1, boite[2] - boite[0]), max(1, boite[3] - boite[1])), Image.LANCZOS)
+        page.image.paste(posee, boite[:2], posee)
+
+    _mettre_en_page(nom, emprise, VUES[nom][2], Vector(*centre), tracer, fichier)
+    return fichier
 
 
 def rendre(piece: Shape, dossier: Path) -> list[Path]:
