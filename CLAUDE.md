@@ -19,6 +19,13 @@ Une nouvelle pièce démarre par la skill `nouvelle-piece`.
 
 ## À retenir
 
+- **Dépendances changées → `sh init.sh` avant toute autre chose.** Dès qu'un `git pull`,
+  `rebase`, `merge`, `checkout` ou une modification touche `pyproject.toml`, `uv.lock` ou
+  `init.sh` (le voir avec `git diff --name-only <avant> HEAD`), le lancer et le faire passer
+  en entier : il contrôle uv et Blender (4.2 au moins), synchronise l'environnement, génère
+  une pièce de chaque filière puis lance la suite de tests. Il échoue si l'un des deux manque :
+  le signaler à l'utilisateur, ne pas poursuivre comme si de rien n'était. Bambu Studio est
+  facultatif, seulement signalé.
 - **Une seule buse en service** (la principale, gauche) : impression mono-matière, et le
   support sort dans la matière de la pièce. Volume contrôlé : 256 × 256 × 260 mm.
 - Contrat : `construire()` rend un `Part` (build123d) ou un objet MESH (Blender) ; mm, Z vers
@@ -46,4 +53,5 @@ Lire le fichier qui correspond **avant** la tâche concernée :
 - `uv run generer <nom>` sur chaque pièce touchée, puis lecture de ses PNG.
 - Les tests qui lancent le vrai Blender sont sautés quand il manque : le dire plutôt que
   conclure sur une suite partielle.
-- `sh init.sh` après toute modification de `pyproject.toml`, `uv.lock` ou `init.sh`.
+- `sh init.sh` après toute modification de `pyproject.toml`, `uv.lock` ou `init.sh` (voir
+  « À retenir »).

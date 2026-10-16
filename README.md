@@ -9,7 +9,7 @@ Pièces imprimables écrites en Python pour Bambu Studio et une Bambu Lab X2D, p
 
 ```sh
 git clone https://github.com/Hachimanai/IRwR.git && cd IRwR
-sh init.sh                        # environnement + test de fumée (demande uv)
+sh init.sh                        # outils (uv, Blender), environnement, tests
 uv run generer                    # menu : flèches, frappe pour filtrer, Entrée
 uv run generer eprouvette_jeux    # → out/eprouvette_jeux/ : STEP, STL, sept vues PNG
 uv run generer vase_torsade       # → out/vase_torsade/ : STL, .blend, sept vues PNG
