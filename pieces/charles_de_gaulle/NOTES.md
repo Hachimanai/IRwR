@@ -16,7 +16,7 @@ et passent à l'échelle par `ECHELLE`.
 
 ## Impression
 
-- Coque posée sur sa flottaison : pas de support attendu, le plus fort évasement est à 46°
+- Coque posée sur sa flottaison : aucun support, le plus fort évasement est à 46°
   de la verticale (44° du plateau), au-dessus du seuil de support par défaut de Bambu Studio.
 - Gravures de 0,5 mm : lisibles en buse 0,4, nettes en buse 0,2 ; couche de 0,12 mm conseillée.
 

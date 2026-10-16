@@ -14,8 +14,9 @@ l'aile delta et le ventre portent sur le plateau, le nez pointe vers X = 0.
 
 ## Impression
 
-- Support nécessaire sous les plans canard, sous le dessous avant du fuselage (nez, flancs)
-  et dans la bouche des entrées d'air. Matière de support sur la buse auxiliaire.
+- Support à activer dans Bambu Studio, dans la matière de la pièce (une seule buse en
+  service) : sous les plans canard, sous le dessous avant du fuselage (nez, flancs) et dans la
+  bouche des entrées d'air. Support arborescent conseillé, il se retire mieux sous les canards.
 - Saumons à 1,5 mm : passent en buse 0,4 ; la buse 0,2 rend mieux les bords d'attaque et
   les plans canard (1,4 mm).
 
