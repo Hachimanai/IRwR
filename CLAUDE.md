@@ -34,7 +34,7 @@ Lire le fichier qui correspond **avant** la tâche concernée :
 
 | Fichier | Quand |
 | --- | --- |
-| `docs/contrat-piece.md` | écrire ou modifier `piece.py` / `scene.py` ; contraintes du Python de Blender |
+| `docs/contrat-piece.md` | écrire ou modifier `piece.py` / `scene.py` ; filetages et visserie (`bd_warehouse`) ; contraintes du Python de Blender |
 | `docs/conception.md` | concevoir une forme : orientation, surplombs, parois ; **jeux d'ajustement** par matériau |
 | `docs/generer.md` | lancer `generer`, lire les vues PNG, interpréter un code de sortie ou un contrôle en ÉCHEC |
 | `docs/imprimante.md` | volumes, buses, température ; ouvrir un export dans Bambu Studio |

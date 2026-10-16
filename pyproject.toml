@@ -8,6 +8,7 @@ dependencies = [
     "questionary==2.1.1",
     "prompt-toolkit==3.0.53",
     "pillow==12.2.0",
+    "bd-warehouse==0.4.0",
 ]
 
 [project.scripts]

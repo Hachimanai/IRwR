@@ -9,9 +9,11 @@
   (Bowden) est prévue pour le support. Quand elle reviendra en service, rétablir son
   avertissement de volume dans `atelier/controles.py` et assouplir la règle des surplombs
   (`docs/conception.md`).
-- Buses disponibles : 0,2 mm, 0,4 mm, 0,6 mm et 0,6 mm (deux en 0,6). Le diamètre monté se
-  choisit dans le profil d'imprimante de Bambu Studio ; il borne les détails et les parois
-  fines (`docs/conception.md`).
+- Buses disponibles : 0,2 mm, 0,4 mm (par défaut), 0,6 mm et 0,8 mm. La 0,2 rend les détails
+  fins (gravures, arêtes minces, petits filetages) au prix d'un temps d'impression bien plus
+  long ; la 0,6 et la 0,8 impriment vite et solide les pièces massives sans détail fin. Le
+  diamètre monté se choisit dans le profil d'imprimante de Bambu Studio ; il borne les détails
+  et les parois fines (`docs/conception.md`).
 - Température maximale de buse : 300 °C ou 350 °C selon les sources, non tranché. À lire sur
   la fiche de la machine avant de viser un matériau technique.
 

@@ -11,6 +11,13 @@
 - Les cotes se nomment en constantes en tête de fichier, jamais en dur dans la géométrie.
 - Les briques communes viennent de `commun/` : `visserie` (perçages M2 à M5, passage et
   lamage), `jeux` (ajustements par matériau), `imprimante` (volumes).
+- Filetages et quincaillerie, filière build123d seulement : `bd_warehouse` (installé).
+  `bd_warehouse.thread` pour les filetages réels (`IsoThread`, extérieur ou intérieur,
+  `TrapezoidalThread`) ; `bd_warehouse.fastener` pour les vis, écrous, rondelles et les trous
+  calés sur une vis (`ClearanceHole`, `TapHole`, `ThreadedHole`). Un filetage extérieur ne
+  porte que les filets : l'unir à un cylindre de rayon `min_radius` pour faire la tige. Prévoir
+  0,1 à 0,2 mm de jeu au rayon entre pièces imprimées, et pas de filetage imprimé sous M5 en
+  buse 0,4 (sous M4 en buse 0,2).
 - `pieces/<nom>/NOTES.md` accompagne chaque pièce : cotes mesurées et leur origine, ce avec
   quoi la pièce s'assemble, hypothèses, supports (aucun, ou où les activer ou peindre dans
   Bambu Studio) et le tableau « Tirages » (résultat de chaque impression).

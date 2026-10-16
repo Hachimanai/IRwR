@@ -29,6 +29,7 @@ name = "atelier"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "bd-warehouse" },
     { name = "build123d" },
     { name = "pillow" },
     { name = "prompt-toolkit" },
@@ -42,6 +43,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "bd-warehouse", specifier = "==0.4.0" },
     { name = "build123d", specifier = "==0.13.0" },
     { name = "pillow", specifier = "==12.2.0" },
     { name = "prompt-toolkit", specifier = "==3.0.53" },
@@ -62,6 +64,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/19/28/940946d9cc9f1489c3d3f0c6a8f2acaf2a1240ba1cf24df69ac385f9c0d7/bd_materials-0.2.4.tar.gz", hash = "sha256:daea82953c18cef04be9f8519c75518d230df1b78457f4a92a7da8725e533bb8", size = 90450, upload-time = "2026-07-30T12:20:12.414Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d3/fb/ea1f307dfcecb7a5e842d48031086dac70633fe61de0c0fb53ee6c8d7d35/bd_materials-0.2.4-py3-none-any.whl", hash = "sha256:27a43ba75e4eb115c03b0a3ce188ee8482228d019965d2e7d892ff9c0ad38742", size = 74803, upload-time = "2026-07-30T12:20:11.327Z" },
+]
+
+[[package]]
+name = "bd-warehouse"
+version = "0.4.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "bd-materials" },
+    { name = "build123d" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/02/7b/1a860283b544e39763d9b6357b39785ed1db9055756b3a6cec0bb67f084a/bd_warehouse-0.4.0.tar.gz", hash = "sha256:3c98f83b0b5c67fade67411b9775ae98a7fcffc714e231e825886f0c86778191", size = 22358664, upload-time = "2026-10-07T17:50:09.441Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7d/4b/2eadc5c20456b0ddff63c1b14444a7f2852ceb7956b578b521162a4e8149/bd_warehouse-0.4.0-py3-none-any.whl", hash = "sha256:2bb830513dc53a5095904d645a92466e629a50bd5493783544bdf3a7d5efc339", size = 179019, upload-time = "2026-10-07T17:50:07.634Z" },
 ]
 
 [[package]]
