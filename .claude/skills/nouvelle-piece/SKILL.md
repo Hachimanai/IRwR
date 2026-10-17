@@ -28,6 +28,9 @@ chacune, dire en deux ou trois lignes ce qu'on y voit : forme, nombre de trous, 
 visibles, ce qui est caché. Cette reformulation fait remonter un malentendu avant qu'il coûte
 un tirage.
 
+Les images déposées dans le dépôt se rangent dans `pieces/<nom>/photos/` et se compressent
+avant d'être poussées ; elles s'archivent une fois la pièce terminée (`docs/images.md`).
+
 Ce qu'une image donne et ne donne pas :
 
 - **Sans référence d'échelle** (règle, pied à coulisse, objet de taille connue), une photo
@@ -108,6 +111,7 @@ En quelques lignes :
 - les hypothèses à confirmer, s'il en reste ;
 - le fichier à ouvrir ; proposer de l'ouvrir dans Bambu Studio (commande dans
   `docs/imprimante.md`) ;
-- après l'impression, demander le résultat pour remplir le tableau « Tirages » de `NOTES.md`.
+- après l'impression, demander le résultat pour remplir le tableau « Tirages » de `NOTES.md` ;
+  un tirage validé et confirmé termine la pièce : archiver ses images (`docs/images.md`).
 
 Rien ne se committe sans demande explicite.

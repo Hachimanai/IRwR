@@ -46,6 +46,7 @@ Lire le fichier qui correspond **avant** la tâche concernée :
 | `docs/generer.md` | lancer `generer`, lire les vues PNG, interpréter un code de sortie ou un contrôle en ÉCHEC |
 | `docs/imprimante.md` | volumes, buses, température ; ouvrir un export dans Bambu Studio |
 | `docs/postes.md` | installer un poste, changer une dépendance (`uv.lock`) |
+| `docs/images.md` | recevoir des photos pour une pièce : compresser avant de pousser, archiver une fois la pièce terminée |
 
 ## Vérifier avant de conclure
 
