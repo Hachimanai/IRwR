@@ -28,3 +28,9 @@ setsid -f flatpak run com.bambulab.BambuStudio "$PWD/out/<nom>/<nom>.step"   # .
 
 Le chemin doit être absolu. Le profil, le filament et le tranchage se font dans Bambu Studio ;
 rien n'est envoyé à l'imprimante depuis le dépôt.
+
+Un projet enregistré (`.3mf`) peut se poser dans `pieces/<nom>/` pour être relu : c'est une
+archive zip (réglages dans `Metadata/project_settings.config`, ceux changés par rapport au
+profil dans sa clé `different_settings_to_system`). Il ne se versionne pas (`.gitignore`) :
+il pèse surtout son maillage, qui se régénère. Les réglages retenus se recopient dans le
+`NOTES.md` de la pièce.
