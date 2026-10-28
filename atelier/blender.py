@@ -10,6 +10,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from atelier.imprimabilite import PARAMETRES
+
 SCRIPT = Path(__file__).with_name("blender_scene.py")
 DELAI = 600  # secondes : au-delà, construire() est tenu pour bloqué
 LIGNES_STDERR = 20
@@ -45,6 +47,7 @@ def executer(blender: str, scene: Path, vues: dict, travail: Path, delai: float 
         "blend": str(travail / "piece.blend"),
         "rendus": str(travail),
         "vues": vues,
+        "imprimabilite": PARAMETRES,
         "reponse": str(travail / "reponse.json"),
     }
     fichier = travail / "demande.json"

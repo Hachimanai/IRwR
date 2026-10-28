@@ -56,7 +56,18 @@ def textes(monkeypatch):
 
 
 def test_noms_des_vues():
-    assert list(VUES) == ["iso", "dessus", "dessous", "face", "arriere", "droite", "gauche"]
+    assert list(VUES) == [
+        "iso_avant_droite",
+        "iso_avant_gauche",
+        "iso_arriere_droite",
+        "iso_arriere_gauche",
+        "dessus",
+        "dessous",
+        "face",
+        "arriere",
+        "droite",
+        "gauche",
+    ]
 
 
 @pytest.mark.parametrize(
@@ -76,10 +87,23 @@ def test_orientation(vues, vue, plot_a_droite):
     assert position > 0.65 if plot_a_droite else position < 0.35
 
 
-def test_orientation_iso(tmp_path):
-    """Un mât au coin +X +Y d'une plaque : vu de +X -Y +Z, il dépasse en haut à droite."""
-    rendre(piece(((0, 0, 0), (40, 40, 2)), ((36, 36, 2), (4, 4, 40))), tmp_path)
-    assert position_du_sommet(Image.open(tmp_path / "iso.png").convert("L")) > 0.65
+@pytest.mark.parametrize(
+    ("vue", "coin"),
+    [
+        ("iso_avant_droite", (36, 36)),
+        ("iso_avant_gauche", (36, 0)),
+        ("iso_arriere_droite", (0, 36)),
+        ("iso_arriere_gauche", (0, 0)),
+    ],
+)
+def test_orientation_iso(tmp_path, monkeypatch, vue, coin):
+    """Un mât à un coin d'une plaque : dans chaque vue iso, un seul coin tombe tout à droite.
+
+    Les deux coins voisins tombent près du milieu ou à gauche : deux vues échangées échouent.
+    """
+    monkeypatch.setattr(rendu, "VUES", {vue: rendu.VUES[vue]})
+    rendre(piece(((0, 0, 0), (40, 40, 2)), ((*coin, 2), (4, 4, 40))), tmp_path)
+    assert position_du_sommet(Image.open(tmp_path / f"{vue}.png").convert("L")) > 0.65
 
 
 @pytest.mark.parametrize(("vue", "bord_du_zero"), [("dessus", "gauche"), ("dessous", "droite")])

@@ -11,8 +11,8 @@ Pièces imprimables écrites en Python pour Bambu Studio et une Bambu Lab X2D, p
 git clone https://github.com/Hachimanai/IRwR.git && cd IRwR
 sh init.sh                        # outils (uv, Blender), environnement, tests
 uv run generer                    # menu : flèches, frappe pour filtrer, Entrée
-uv run generer eprouvette_jeux    # → out/eprouvette_jeux/ : STEP, STL, sept vues PNG
-uv run generer vase_torsade       # → out/vase_torsade/ : STL, .blend, sept vues PNG
+uv run generer eprouvette_jeux    # → out/eprouvette_jeux/ : STEP, STL, dix vues PNG
+uv run generer vase_torsade       # → out/vase_torsade/ : STL, .blend, dix vues PNG
 ```
 
 ## Filière Blender
@@ -28,7 +28,7 @@ les modificateurs de l'objet rendu, puis contrôle le maillage : étanche (aucun
 manifold), normales cohérentes et tournées vers l'extérieur (volume positif), un seul morceau,
 tenue dans la X2D. Les vues sont des rendus ombrés posés dans le même cadre gradué que les vues
 build123d : seule la silhouette est tracée, ni arêtes cachées ni arêtes vives internes (un
-ressaut vu de face ne se lit qu'à l'ombrage, ouvrir `iso` ou le `.blend` en cas de doute).
+ressaut vu de face ne se lit qu'à l'ombrage, ouvrir une vue `iso_*` ou le `.blend` en cas de doute).
 Limites des contrôles : une pièce creuse (cavité fermée) compte comme deux parties et
 échoue ; les auto-intersections ne sont pas détectées. Les autres objets de la scène (outils de booléen) ne sont ni
 exportés ni rendus. Un `construire()` qui dépasse 600 s est arrêté. Mêmes codes de sortie ;

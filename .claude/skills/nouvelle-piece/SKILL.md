@@ -75,6 +75,15 @@ code. Les poser une à une fait perdre un aller-retour par question.
 - Cotes : question ouverte, en disant **où** et **comment** mesurer (« l'entraxe des deux trous,
   centre à centre, au pied à coulisse »). Si une photo de plus aide, dire laquelle (vue de face,
   règle dans le plan).
+- **Joindre une image des mesures à prendre**, dès qu'il y a plus de deux ou trois cotes à
+  demander : un schéma de la pièce (vues de face, de dessus, en coupe selon ce qui montre les
+  cotes) où chaque cote est tracée avec ses flèches et **numérotée**, les numéros renvoyant à
+  la liste du message (où poser le pied à coulisse, valeur par défaut). L'utilisateur mesure
+  avec l'image sous les yeux et répond « 1 : 12,4 ; 2 : … » sans ambiguïté sur ce qu'est
+  chaque cote. Le schéma se dessine en Python, matplotlib hors du projet
+  (`uv run --no-project --with matplotlib python schema.py`), ou à partir des vues d'une
+  ébauche ; s'écrit dans le scratchpad (pas dans `pieces/`, il ne se versionne pas) et se
+  relit avec Read avant d'être montré, pour vérifier que les cotes tombent au bon endroit.
 - Proposer une valeur par défaut quand il y en a une sensée (« sinon je pars sur 3 mm »), pour
   que l'utilisateur puisse répondre « ok ».
 - Joindre les hypothèses secondaires déjà prises, en une liste courte : l'utilisateur les voit
@@ -98,7 +107,9 @@ tranche seul et rejoint la liste des hypothèses.
 
 ## 5. Vérifier contre les images
 
-`uv run generer <nom>`, puis lire les PNG comme le dit `docs/generer.md`. Quand l'utilisateur a
+`uv run generer <nom>`, puis lire les PNG comme le dit `docs/generer.md`, et la ligne
+`imprimabilité` : un surplomb ou une paroi mince doit se retrouver dans `NOTES.md` (support,
+pont, détail voulu). Quand l'utilisateur a
 fourni des images, comparer la vue qui leur correspond (photo de face ↔ `face`, croquis vu de
 dessus ↔ `dessus`) et citer les écarts : un trou mal placé, une proportion différente. Un
 écart voulu (correction d'un défaut, simplification) se dit aussi.

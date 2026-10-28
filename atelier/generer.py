@@ -15,11 +15,11 @@ import traceback
 from pathlib import Path
 
 import questionary
-from build123d import Shape, export_step, export_stl
+from build123d import Part, Shape, export_step, export_stl
 from prompt_toolkit.keys import Keys
 from questionary.prompts.common import InquirerControl
 
-from atelier import blender
+from atelier import blender, imprimabilite
 from atelier.controles import ECHEC, controler, controler_maillage
 from atelier.rendu import VUES, composer, rendre
 
@@ -182,6 +182,12 @@ def _conclure(ecarts, ecrits: list[Path], exporter) -> int:
     return 0
 
 
+def _imprimabilite(mesures: dict) -> list:
+    ligne, ecarts = imprimabilite.resumer(mesures)
+    print(f"  {ligne}")
+    return ecarts
+
+
 def _generer_build123d(nom: str, chemin: Path, dossier: Path) -> int:
     try:
         construire = _charger(chemin)
@@ -202,6 +208,11 @@ def _generer_build123d(nom: str, chemin: Path, dossier: Path) -> int:
             print(f"generer : rendu impossible ({type(erreur).__name__} : {erreur})", file=sys.stderr)
         boite = piece.bounding_box()
         print(f"{nom} : {boite.size.X:.2f} × {boite.size.Y:.2f} × {boite.size.Z:.2f} mm, {piece.volume / 1000:.2f} cm³")
+    if isinstance(piece, Part) and piece.solids():
+        try:
+            ecarts += _imprimabilite(imprimabilite.mesurer(piece))
+        except Exception as erreur:
+            print(f"generer : imprimabilité non mesurée ({type(erreur).__name__} : {erreur})", file=sys.stderr)
 
     def exporter():
         step, stl = dossier / f"{nom}.step", dossier / f"{nom}.stl"
@@ -231,6 +242,8 @@ def _generer_blender(nom: str, chemin: Path, executable: str, dossier: Path) -> 
         mesures = reponse["mesures"]
         ecarts = controler_maillage(mesures)
         ecrits = []
+        if "erreur_imprimabilite" in reponse:
+            print(f"generer : imprimabilité non mesurée ({reponse['erreur_imprimabilite']})", file=sys.stderr)
         if "erreur_rendu" in reponse:
             print(f"generer : rendu impossible ({reponse['erreur_rendu']})", file=sys.stderr)
         for vue, rendu in reponse.get("rendus", {}).items():
@@ -243,6 +256,8 @@ def _generer_blender(nom: str, chemin: Path, executable: str, dossier: Path) -> 
             taille = [b - a for a, b in zip(mesures["boite_min"], mesures["boite_max"])]
             print(f"{nom} : {taille[0]:.2f} × {taille[1]:.2f} × {taille[2]:.2f} mm, "
                   f"{mesures['volume'] / 1000:.2f} cm³ (maillage Blender)")
+        if "imprimabilite" in mesures:
+            ecarts += _imprimabilite(mesures["imprimabilite"])
 
         def exporter():
             stl, blend = dossier / f"{nom}.stl", dossier / f"{nom}.blend"

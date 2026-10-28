@@ -16,9 +16,14 @@ from PIL import Image, ImageDraw, ImageFont
 # axes : (axe horizontal, sens, axe vertical) ; sens -1 = l'axe horizontal décroît vers la
 # droite (vue miroir). L'axe vertical croît toujours vers le haut.
 # None : vue axonométrique, ses trois axes sont raccourcis différemment, aucune graduation
-# n'y serait juste.
+# n'y serait juste. Les quatre `iso_*` regardent d'en haut depuis chaque coin ; l'avant est
+# le côté -Y, celui de `face`, la droite le côté +X, celui de `droite` (côtés de la pièce,
+# pas de l'observateur), et chacune montre davantage la face avant ou arrière.
 VUES = {
-    "iso": ((1, -1.3, 1), (0, 0, 1), None),
+    "iso_avant_droite": ((1, -1.3, 1), (0, 0, 1), None),
+    "iso_avant_gauche": ((-1, -1.3, 1), (0, 0, 1), None),
+    "iso_arriere_droite": ((1, 1.3, 1), (0, 0, 1), None),
+    "iso_arriere_gauche": ((-1, 1.3, 1), (0, 0, 1), None),
     "dessus": ((0, 0, 1), (0, 1, 0), ("X", 1, "Y")),
     "dessous": ((0, 0, -1), (0, 1, 0), ("X", -1, "Y")),
     "face": ((0, -1, 0), (0, 0, 1), ("X", 1, "Z")),

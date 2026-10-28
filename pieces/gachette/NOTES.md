@@ -2,76 +2,64 @@
 
 Reproduction d'une détente en plastique moulé, fissurée au pied de sa chape (la fissure suit
 le fond de la fente, du pivot vers le bas de la plaque). Filière build123d (`piece.py`).
-Mesuré par `generer` : 50,2 × 44,3 × 8,5 mm, 4,52 cm³.
+Mesuré par `generer` : 51,9 × 46,5 × 9,15 mm, 5,74 cm³.
 
 ## S'assemble avec
 
-- **Axe de pivot** : traverse le bossage et les deux joues de la chape. Trou de 3,5 mm comme
-  l'original ; l'axe est un peu plus petit et tourne sans forcer (indication de l'utilisateur,
-  2026-10-17).
-- **Gâchette**, épaisseur 3,4 : se loge dans la fente de la chape (plan médian, ouverte sur le
-  dos de la plaque et autour du pivot). Fente à 3,65 (jeu glissant ; 3,5 sur l'original).
+- **Axe de pivot** : traverse le bossage et les deux joues de la chape. Ø supposé 4 mm,
+  alésage à 4,25 mm (jeu glissant PETG).
+- **Gâchette** : se loge dans la fente de la chape (plan médian, ouverte sur le flanc arrière
+  et autour du pivot).
 - **2 vis M3 métal** de réglage : vissées depuis la face avant (côté lame), elles débouchent
-  au fond de la fente et appuient sur la gâchette. Elles sont perpendiculaires à la face
-  avant et au fond de la fente, parallèles entre eux (indication de l'utilisateur). Taraudage direct Ø 2,5 mm dans le PETG.
+  dans la fente et appuient sur la gâchette. Taraudage direct Ø 2,5 mm dans le PETG.
 - **`gachette_rondelle`** : remplace le bossage côté plateau, à enfiler sur l'axe sous la
   détente (choix du 2026-10-17 : la détente pose ainsi à plat ; sur la tranche, les couches
-  croiseraient l'effort du levier).
+  croiseraient l'effort du levier). Une rondelle métal M4 DIN 125 (Ø 9 × 0,8) peut la
+  remplacer si 0,35 mm de jeu latéral en plus est acceptable.
 
 ## Cotes
 
-Mesurées au pied à coulisse le 2026-10-17, sur l'original fissuré (repères de la planche
-`cotes_gachette.png`, non versionnée) :
+**Aucune cote n'est mesurée au pied à coulisse** (2026-10-17) : tout vient des photos
+`Photos-1-001 (1)/` avec un mètre ruban posé dans le plan (34,3 px/mm sur la photo à plat
+`…080437419.jpg`), à ±0,5 mm au mieux. La face du dessus, plus haute que le ruban, ressort
+de 1 à 3 % trop grande sur la photo : non corrigé. À reprendre dès qu'un pied à coulisse est
+là, dans cet ordre (les premières sont des interfaces) :
 
-| N° | Cote | Constante | Mesure | Dans la pièce |
-| --- | --- | --- | --- | --- |
-| 1 | Ø du trou du pivot | `DIAMETRE_ALESAGE` | 3,5 | 3,5 (l'axe est plus petit) |
-| 2 | Épaisseur de la gâchette | `EPAISSEUR_GACHETTE` | 3,4 | |
-| 3 | Largeur de la fente | `LARGEUR_FENTE` | 3,5 | 3,65 (gâchette + jeu glissant) |
-| 4 | Épaisseur du corps | `EPAISSEUR` | 6,8 | joues de 1,58 |
-| 5 | Hors tout aux bossages | `SAILLIE_BOSSAGE` | 10,2 | saillie 1,7 de chaque côté |
-| 6 | Ø du bossage | `DIAMETRE_BOSSAGE` | 9,0 | |
-| 7 | Ø des trous de vis | `DIAMETRE_TROU_ORIGINE` | 2,4 | taraudage 2,5 (perçage M3) |
-| 8 | Arête du haut de la face avant → bord du trou de la vis haute | `ARETE_VIS` | 3,4 | centre à 4,6 le long de la face |
-| — | Entraxe des vis | `ENTRAXE_VIS` | 6,0 | |
-| 9 | Profondeur de la fente, du dos au fond | `PROFONDEUR_FENTE` | 7,5 (6,2 d'abord, mal lu) | contrôle : 8,1 entre les vis, 7,5 en haut |
-| 10 | Téton : Ø, saillie | `TETON_DIAMETRE`, `TETON_SAILLIE` | 3,4 ; 2,6 | |
-| 11 | Longueur hors tout | `LONGUEUR` | 50,2 | |
-| 12 | Hauteur hors tout | `HAUTEUR` | 44,3 | |
-
-Le **contour** reste relevé point par point sur la photo à plat `PXL_20261017_080437419.jpg`
-(mètre ruban dans le plan, ±0,5 mm), puis recalé par `ECHELLE_X` = 0,967 et `ECHELLE_Y` =
-0,952 pour tomber sur les cotes 11 et 12 : la photo le sortait 3 à 5 % trop grand.
-
-**Géométrie imposée** (indications de l'utilisateur, 2026-10-17) : le bossage est tangent au
-dos de la plaque et au pan supérieur, sans déport ; le fond de la fente est parallèle à la
-face avant et descend jusqu'à l'arête du cran (sous la plaque), où il débouche.
-
-Le fond n'est pas exactement parallèle au dos (4° d'écart) : la profondeur passe de 8,4 au
-pied à 7,5 en haut de la fente, ce qui recoupe la mesure 9.
+| Cote                        | Constante                             | Valeur actuelle                   | D'où                                                                                           | À mesurer                                                                |
+| --------------------------- | ------------------------------------- | --------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Ø de l'axe de pivot         | `DIAMETRE_AXE`                        | 4,0                               | alésage ≈ 3,9-4,0 sur photo                                                                    | l'axe lui-même                                                           |
+| Largeur de la fente         | `LARGEUR_FENTE`                       | 3,2                               | vue de bout, ratio sur l'épaisseur                                                             | fente, et épaisseur de la gâchette                                       |
+| Épaisseur du corps          | `EPAISSEUR`                           | 8,0                               | photo de tranche avec ruban                                                                    | flanc à flanc, hors bossage                                              |
+| Saillie du bossage          | `SAILLIE_BOSSAGE`                     | 1,15                              | idem (10,3 hors tout)                                                                          | hors tout aux bossages − épaisseur, ÷ 2                                  |
+| Ø du bossage                | `DIAMETRE_BOSSAGE`                    | 9,3                               | photo à plat                                                                                   |                                                                          |
+| Entraxe des vis             | `ENTRAXE_VIS`                         | 6,0                               | mesuré par l'utilisateur, centre à centre (2026-10-17)                                         | —                                                                        |
+| Hauteur de la vis basse (Y) | `Y_VIS_BAS`                           | 27,0                              | choisie : la photo (28,6) mettait la vis haute dans l'arête de la face avant ; paroi de 1,5 mm | distance du centre de la vis haute à l'arête supérieure de la face avant |
+| Fond de chape               | `FENTE_FOND`, `FENTE_BAS`             | ligne (12,5 ; 24,4) → (19,5 ; 47) | tracé de la fissure                                                                            | profondeur de la fente depuis le flanc arrière                           |
+| Téton                       | `TETON_*`                             | Ø 3,3, saillie 2,8                | photo à plat                                                                                   |                                                                          |
+| Contour                     | `CONTOUR_DOS`, `LAME`, `CONTOUR_PIED` | relevé point par point            | photo à plat quadrillée                                                                        | longueur hors tout ≈ 51,9, hauteur ≈ 46,5                                |
 
 ## Hypothèses
 
 - Contour en segments droits et faces planes, sauf la lame (une courbe), le pivot, le téton
   et les vis (indication de l'utilisateur, 2026-10-17). Coins vifs, y compris celui de la
   plaque qui paraissait arrondi sur la photo.
-- Épaisseur uniforme de 6,8 mm, crochet compris.
-- Fente centrée dans l'épaisseur.
-- Face du cran verticale, à la position relevée sur la photo.
+- Épaisseur uniforme de 8 mm, crochet compris (il paraît plus mince, ≈ 6,5 mm, sur la photo
+  de tranche).
+- Joues de la chape de 2,4 mm chacune, fente centrée.
 - Vis perpendiculaires à X (horizontales), taraudages jusqu'à 1 mm dans la fente.
-- Téton cylindrique (section ronde) centré dans l'épaisseur, à la hauteur relevée sur la photo.
+- Téton cylindrique (section ronde) centré dans l'épaisseur.
 - Taraudages et téton ronds, pas en goutte (demande du 2026-10-17) : le haut des trous et
   le dessous du téton peuvent s'affaisser d'un rien, sans gêne à ces diamètres.
 - Marques d'éjecteur non reproduites. Pas de chanfrein au plateau (retiré à la demande de
   l'utilisateur, 2026-10-17) : surveiller la patte d'éléphant, compensable dans Bambu Studio.
 - Le fond de chape reste vif, comme l'original : si la nouvelle pièce casse au même endroit,
-  arrondir ce fond ou épaissir les joues (1,58 mm, contre 1,65 sur l'original).
+  arrondir ce fond ou épaissir les joues.
 
 ## Impression
 
 - PETG, posée à plat sur le flanc sans bossage (Z = 0), bossage vers le haut.
 - **Support à peindre dans la fente** de la chape : le plafond de la fente (joue du dessus)
-  est en porte-à-faux sur ≈ 6 mm, ouvert sur trois côtés. Support normal, peint uniquement
+  est en porte-à-faux sur ≈ 10 mm, ouvert sur trois côtés. Support normal, peint uniquement
   dans la fente ; il se retire par le flanc arrière. Rien ailleurs : taraudages et téton, de
   petit diamètre, s'impriment sans.
 - Tarauder les M3 à la main (ou visser doucement, la vis forme son filet dans le PETG).
@@ -80,10 +68,4 @@ pied à 7,5 en haut de la fente, ce qui recoupe la mesure 9.
 
 | Date | Matériau | Buse / couche | Remarques |
 | --- | --- | --- | --- |
-| 2026-10-17 | PETG | | Pièce déclarée terminée par l'utilisateur ; détails du tirage non relevés |
-
-## Photos
-
-Les 11 photos de l'original (à plat avec mètre ruban, de bout, de face) sont archivées dans
-`photos.tar`, réduites à 3000 px (`docs/images.md`). Pour les relire :
-`tar -xf pieces/gachette/photos.tar -C pieces/gachette`.
+|  |  |  |  |

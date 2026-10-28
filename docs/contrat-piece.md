@@ -22,6 +22,19 @@
   quoi la pièce s'assemble, hypothèses, supports (aucun, ou où les activer ou peindre dans
   Bambu Studio) et le tableau « Tirages » (résultat de chaque impression).
 
+## Bonnes pratiques
+
+- `construire()` est déterministe : rien qui dépende de l'heure, du hasard, de l'environnement
+  ou du dossier courant. Deux runs donnent la même pièce.
+- Ne jamais relire un export de `out/` comme entrée : il se régénère, et il est vidé à chaque
+  run. Une pièce qui reprend les cotes d'une autre les importe ou les recopie (en le disant).
+- Une cote se vérifie sur la géométrie exacte (`Part`, BREP), jamais sur le STL ou une vue :
+  un maillage approche les courbes, un diamètre lu entre deux facettes est faux.
+- Une mesure qui échoue n'est pas une réussite : « rendu impossible », « imprimabilité non
+  mesurée » ou un test sauté se signalent, ils ne valent pas contrôle passé.
+- Une pièce du commerce (vis, écrou, roulement) vient de `bd_warehouse` avant tout gabarit
+  dessiné à la main ; l'hypothèse se note dans `NOTES.md`.
+
 ## Propre à `scene.py` (Blender)
 
 - Il tourne dans le Python de Blender (4.2 au moins), lancé en arrière-plan sur une scène

@@ -60,8 +60,9 @@ controle() {
 }
 
 controle eprouvette_jeux eprouvette_jeux.step eprouvette_jeux.stl \
-    iso.png dessus.png dessous.png face.png arriere.png droite.png gauche.png
-controle vase_torsade vase_torsade.stl vase_torsade.blend iso.png face.png
+    iso_avant_droite.png iso_avant_gauche.png iso_arriere_droite.png iso_arriere_gauche.png \
+    dessus.png dessous.png face.png arriere.png droite.png gauche.png
+controle vase_torsade vase_torsade.stl vase_torsade.blend iso_avant_droite.png iso_arriere_gauche.png face.png
 
 echo "init : suite de tests (uv run pytest)"
 uv run pytest -q

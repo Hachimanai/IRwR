@@ -29,6 +29,8 @@ bacs gigognes.
 
 PLA, ouverture vers le haut, **aucun support**. 120 cm³, soit environ 150 g de PLA par bac.
 Un bac par plateau (169 × 150 mm).
+`generer` mesure 3,4 cm² de surplomb entre Z 0,3 et 0,5 mm : c'est le chanfrein du pied,
+incliné à ≈ 49° par la dépouille, sur 0,8 mm de haut. Il s'imprime sans support.
 
 Projet Bambu Studio relu le 2026-10-19 (`COMPOUND.3mf`, non versionné) :
 

@@ -9,6 +9,7 @@ n'a ni build123d ni Pillow. La demande et la réponse sont des fichiers JSON (vo
 
 import importlib.util
 import json
+import random
 import sys
 import traceback
 from pathlib import Path
@@ -16,6 +17,7 @@ from pathlib import Path
 import bmesh
 import bpy
 from mathutils import Matrix, Vector
+from mathutils.bvhtree import BVHTree
 
 VERSION_MIN = (4, 2, 0)  # wm.stl_export remplace l'ancien add-on STL
 # Plus grand côté d'un rendu brut, en pixels : au-dessus de la taille de la zone de dessin finale.
@@ -93,6 +95,38 @@ def _mesurer(objet) -> tuple[dict, bmesh.types.BMesh | None]:
         "boite_max": [max(c[i] for c in coins) for i in range(3)],
     }
     return mesures, maillage
+
+
+def _imprimabilite(maillage: bmesh.types.BMesh, parametres: dict) -> dict:
+    """Surplombs et épaisseurs, comme `atelier/imprimabilite.mesurer` (mêmes paramètres)."""
+    triangles = [t for t in maillage.calc_loop_triangles()]
+    coins = [[boucle.vert.co for boucle in t] for t in triangles]
+    normales = [(b - a).cross(c - a) for a, b, c in coins]
+    aires = [n.length / 2 for n in normales]
+    bas = min(v.co.z for v in maillage.verts) + parametres["tolerance_plateau"]
+    surface, hauteurs = 0.0, []
+    for points, normale, aire in zip(coins, normales, aires):
+        posee = all(p.z < bas for p in points)
+        if aire > 1e-12 and not posee and normale.z / (2 * aire) < parametres["seuil_normale"]:
+            surface += aire
+            hauteurs.append(sum(p.z for p in points) / 3)
+
+    arbre = BVHTree.FromBMesh(maillage)
+    tirage = random.Random(0)
+    epaisseurs = []
+    for i in tirage.choices(range(len(triangles)), weights=aires, k=parametres["echantillons"]):
+        a, b, c = coins[i]
+        r1, r2 = tirage.random() ** 0.5, tirage.random()
+        direction = -normales[i].normalized()
+        depart = a * (1 - r1) + b * (r1 * (1 - r2)) + c * (r1 * r2) + direction * parametres["ecart_rayon"]
+        impact, _, _, distance = arbre.ray_cast(depart, direction)
+        if impact is not None:
+            epaisseurs.append(distance + parametres["ecart_rayon"])
+    return {
+        "surplomb_mm2": surface,
+        "surplomb_z": [min(hauteurs), max(hauteurs)] if hauteurs else None,
+        "epaisseurs": epaisseurs,
+    }
 
 
 def _exporter(objet, stl: str, blend: str) -> int:
@@ -182,6 +216,11 @@ def traiter(demande: dict) -> dict:
     reponse = {"mesures": mesures}
     if maillage is None:
         return reponse
+    if maillage.faces and "imprimabilite" in demande:
+        try:
+            mesures["imprimabilite"] = _imprimabilite(maillage, demande["imprimabilite"])
+        except Exception as erreur:
+            reponse["erreur_imprimabilite"] = f"{type(erreur).__name__} : {erreur}"
     if maillage.verts:
         # Un rendu impossible (pas d'OpenGL) n'empêche pas la pièce de sortir.
         try:

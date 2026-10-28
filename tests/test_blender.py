@@ -206,7 +206,9 @@ def test_reel_cube(depot, capsys):
     depot.scene("cube", source=SCENE_CUBE)
     assert depot.generer("cube") == 0, capsys.readouterr().err
     assert depot.fichiers("cube") == sorted(PNG + ["cube.stl", "cube.blend"])
-    assert "20.00 × 20.00 × 20.00 mm, 8.00 cm³" in capsys.readouterr().out
+    sortie = capsys.readouterr().out
+    assert "20.00 × 20.00 × 20.00 mm, 8.00 cm³" in sortie
+    assert "aucun surplomb > 45° ; paroi min 20.00 mm" in sortie
     stl = (depot.racine / "out" / "cube" / "cube.stl").read_bytes()
     assert int.from_bytes(stl[80:84], "little") == 12  # STL binaire : 6 faces carrées, 12 triangles
 
