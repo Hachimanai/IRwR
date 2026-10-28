@@ -37,6 +37,14 @@ inchangés. Contrôlé sur l'export : pente de 2,4 mm au bout d'entrée des 8 ra
 nul en position, jeu ≈ 0,3 mm en travers, accroche conservée, chemin à 15° libre (le sens
 inverse cogne).
 
+**Arêtes non manifold (2026-10-28).** Bambu Studio en signalait 25 sur ce bloc. Après les
+booléens, les sommets à moins de 0,1 µm sont recollés et les arêtes plus courtes dissoutes
+(`SOUDURE` dans `kit.py`) : il en reste 13 dans le STL (recollé comme un trancheur), toutes des
+pincements de 0,002 à 0,06 mm sur les rails, où l'amincissement réduit à rien les plus petits
+arrondis, et une au fond. Trop petites pour le trancheur (résolution 0,012 mm) ; le bloc gauche,
+imprimé avec une vingtaine de ces arêtes, est sorti correctement. Fermer les pincements par
+union avec des copies décalées de quelques µm a été essayé et écarté (pièce scindée).
+
 ## Hypothèses
 
 - Fusion à 0,1 mm de recouvrement (`FUSION`) et boîte (`HAUT_BOITE`, `PAROI` repris du bloc

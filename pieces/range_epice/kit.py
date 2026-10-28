@@ -28,6 +28,9 @@ ENTRAXE_MILIEU_DROITE = 54.4
 # Recouvrement imposé entre deux modules fusionnés : les flancs se touchent à plat, une union
 # de faces coplanaires est fragile ; 0,1 mm d'interpénétration la rend franche.
 FUSION = 0.1
+# Après les booléens : sommets plus proches recollés, arêtes plus courtes dissoutes (mm). Le STL,
+# en simple précision, confondrait ces sommets en arêtes non manifold.
+SOUDURE = 1e-4
 PROFONDEUR = 97.0  # Y du kit, bras compris : la hauteur d'impression
 PIED = -99.6  # Z du kit sous les modules 4 rangées (le haut est à +99,6)
 # Demi-largeurs des modules, du centre au plan de flanc (faces planes relevées sur les maillages)
@@ -279,6 +282,10 @@ def _boucher_cavites(objet: bpy.types.Object) -> None:
     maillage.from_mesh(evalue.to_mesh())
     evalue.to_mesh_clear()
     objet.modifiers.clear()
+    bmesh.ops.remove_doubles(maillage, verts=maillage.verts, dist=SOUDURE)
+    bmesh.ops.dissolve_degenerate(maillage, edges=maillage.edges, dist=SOUDURE)
+    orphelines = [e for e in maillage.edges if not e.link_faces]  # laissées par la dissolution
+    bmesh.ops.delete(maillage, geom=orphelines, context="EDGES")
     restantes = set(maillage.faces)
     while restantes:
         coque, pile = set(), [restantes.pop()]
